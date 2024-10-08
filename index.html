@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPA & Calculator</title>
+    <title>GPA & CGPA Calculator</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -114,7 +114,7 @@
 <body>
 
 <div class="container">
-   
+    <h1>GPA & CGPA Calculator</h1>
 
     <!-- Semester 5 Subjects Table -->
     <h1>SEM 5</h1>
@@ -254,7 +254,22 @@
     <button id="calculateGpaButton">Calculate GPA</button>
     <div class="result" id="gpaResult"></div>
 
-    
+    <!-- CGPA Section -->
+    <h3>Calculate CGPA</h3>
+    <div class="dynamic-inputs" id="cgpaSemesterInputs">
+        <div class="semester-input">
+            <label for="totalCredits">Total Credits:</label>
+            <input type="number" class="total-credits-input" step="0.5" min="0.5" max="10" placeholder="Enter Total Credits">
+            
+            <label for="gpa">GPA:</label>
+            <input type="number" class="gpa-input" step="0.01" placeholder="Enter GPA">
+        </div>
+    </div>
+
+    <button class="add-button" id="addCgpaSemesterButton">Add Semester</button>
+    <button id="calculateCgpaButton">Calculate CGPA</button>
+    <div class="result" id="cgpaResult"></div>
+</div>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const gpaSubjectInputs = document.getElementById("gpaSubjectInputs");
@@ -262,6 +277,10 @@
         const calculateGpaButton = document.getElementById("calculateGpaButton");
         const gpaResult = document.getElementById("gpaResult");
 
+        const cgpaSemesterInputs = document.getElementById("cgpaSemesterInputs");
+        const addCgpaSemesterButton = document.getElementById("addCgpaSemesterButton");
+        const calculateCgpaButton = document.getElementById("calculateCgpaButton");
+        const cgpaResult = document.getElementById("cgpaResult");
 
         // Add GPA subject
         addGpaSubjectButton.addEventListener("click", () => {
@@ -313,7 +332,88 @@
             }
         });
 
-        
+        // Calculate GPA
+        calculateGpaButton.addEventListener("click", () => {
+            const subjects = gpaSubjectInputs.querySelectorAll(".subject-input");
+            let totalCredits = 0;
+            let totalPoints = 0;
+
+            subjects.forEach(input => {
+                const credit = parseFloat(input.querySelector('.credit-dropdown').value);
+                const grade = input.querySelector('.grade-dropdown').value;
+                let gradePoint = 0;
+
+                switch (grade) {
+                    case "O": gradePoint = 10; break;
+                    case "A+": gradePoint = 9; break;
+                    case "A": gradePoint = 8; break;
+                    case "B+": gradePoint = 7; break;
+                    case "B": gradePoint = 6; break;
+                    case "C": gradePoint = 5; break;
+                    case "U": gradePoint = 0; break;
+                    default: gradePoint = 0;
+                }
+
+                if (credit && !isNaN(gradePoint)) {
+                    totalCredits += credit;
+                    totalPoints += credit * gradePoint;
+                }
+            });
+
+            if (totalCredits > 0) {
+                const gpa = (totalPoints / totalCredits).toFixed(2);
+                gpaResult.textContent = `Your GPA is: ${gpa}`;
+                gpaResult.style.display = "block";
+            } else {
+                gpaResult.textContent = "Please enter valid credits and grades.";
+                gpaResult.style.display = "block";
+            }
+        });
+
+        // Add CGPA semester
+        addCgpaSemesterButton.addEventListener("click", () => {
+            if (cgpaSemesterInputs.children.length < 10) { // Allow up to 10 semesters
+                const newSemesterInput = document.createElement("div");
+                newSemesterInput.classList.add("semester-input");
+                newSemesterInput.innerHTML = `
+                    <label for="totalCredits">Total Credits:</label>
+                    <input type="number" class="total-credits-input" step="0.5" min="0.5" max="10" placeholder="Enter Total Credits">
+                    
+                    <label for="gpa">GPA:</label>
+                    <input type="number" class="gpa-input" step="0.01" placeholder="Enter GPA">
+                `;
+                cgpaSemesterInputs.appendChild(newSemesterInput);
+            } else {
+                alert("Maximum of 10 semesters allowed.");
+            }
+        });
+
+        // Calculate CGPA
+        calculateCgpaButton.addEventListener("click", () => {
+            const semesters = cgpaSemesterInputs.querySelectorAll(".semester-input");
+            let totalCredits = 0;
+            let totalQualityPoints = 0;
+
+            semesters.forEach(input => {
+                const credits = parseFloat(input.querySelector('.total-credits-input').value);
+                const gpa = parseFloat(input.querySelector('.gpa-input').value);
+
+                if (credits && !isNaN(gpa)) {
+                    totalCredits += credits;
+                    totalQualityPoints += credits * gpa;
+                }
+            });
+
+            if (totalCredits > 0) {
+                const cgpa = (totalQualityPoints / totalCredits).toFixed(2);
+                cgpaResult.textContent = `Your CGPA is: ${cgpa}`;
+                cgpaResult.style.display = "block";
+            } else {
+                cgpaResult.textContent = "Please enter valid total credits and GPAs.";
+                cgpaResult.style.display = "block";
+            }
+        });
+    });
 </script>
 
 </body>
